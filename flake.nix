@@ -22,12 +22,19 @@
         craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
         src = craneLib.cleanCargoSource ./.;
 
-        # Build dependencies-only derivation (cached separately)
-        cargoArtifacts = craneLib.buildDepsOnly { inherit src; };
-
-        package = craneLib.buildPackage {
-          inherit src cargoArtifacts;
+        commonArgs = {
+          inherit src;
+          nativeBuildInputs = [ pkgs.pkg-config pkgs.llvmPackages.libclang ];
+          LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
+          # v4l2-sys-mit bindgen needs videodev2.h (linux) and sys/time.h (glibc)
+          BINDGEN_EXTRA_CLANG_ARGS = "-I${pkgs.linuxHeaders}/include -I${pkgs.glibc.dev}/include";
         };
+
+        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+
+        package = craneLib.buildPackage (commonArgs // {
+          inherit cargoArtifacts;
+        });
       in
       {
         packages.default = package;
@@ -39,17 +46,24 @@
 
         checks = {
           inherit package;
-          clippy = craneLib.cargoClippy {
-            inherit src cargoArtifacts;
+          clippy = craneLib.cargoClippy (commonArgs // {
+            inherit cargoArtifacts;
             cargoClippyExtraArgs = "--all-targets -- --deny warnings";
-          };
+          });
           fmt = craneLib.cargoFmt { inherit src; };
         };
 
         devShells.default = pkgs.mkShell {
           inputsFrom = [ package ];
-          buildInputs = [ rustToolchain pkgs.pkg-config ];
+          buildInputs = [ rustToolchain ];
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
+          LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
+          BINDGEN_EXTRA_CLANG_ARGS = "-I${pkgs.linuxHeaders}/include -I${pkgs.glibc.dev}/include";
+          # wayland and xkbcommon are dlopen'd at runtime by minifb
+          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+            pkgs.wayland
+            pkgs.libxkbcommon
+          ];
         };
       });
 }
