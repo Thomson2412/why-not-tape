@@ -2,6 +2,7 @@ use std::f32::consts::PI;
 
 use crate::{Config, Image};
 
+
 /// Encode an image into a single audio clip.
 ///
 /// Every pixel in the image (scanned row-major, left-to-right, top-to-bottom) is

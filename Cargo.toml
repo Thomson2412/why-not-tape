@@ -7,6 +7,8 @@ edition = "2024"
 image = "0.25"
 nokhwa = { version = "0.10", features = ["input-native"] }
 minifb = "0.28"
+hound = "3"
+rodio = "0.17"
 
 [dev-dependencies]
 approx = "0.5"

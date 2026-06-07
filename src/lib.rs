@@ -1,8 +1,10 @@
+pub mod adio;
 pub mod config;
 pub mod decoder;
 pub mod encoder;
 pub mod image;
 
+pub use adio::{Audio, AudioSink};
 pub use config::Config;
 pub use decoder::decode;
 pub use encoder::encode;

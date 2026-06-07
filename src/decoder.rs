@@ -2,6 +2,7 @@ use std::f32::consts::PI;
 
 use crate::{Config, Image};
 
+
 /// Decode an audio clip back into an image.
 ///
 /// For each pixel index `i` (0..width*height), evaluates the DFT at the pixel's carrier

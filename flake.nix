@@ -25,6 +25,7 @@
         commonArgs = {
           inherit src;
           nativeBuildInputs = [ pkgs.pkg-config pkgs.llvmPackages.libclang ];
+          buildInputs = [ pkgs.alsa-lib ];
           LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
           # v4l2-sys-mit bindgen needs videodev2.h (linux) and sys/time.h (glibc)
           BINDGEN_EXTRA_CLANG_ARGS = "-I${pkgs.linuxHeaders}/include -I${pkgs.glibc.dev}/include";
@@ -63,6 +64,7 @@
           LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
             pkgs.wayland
             pkgs.libxkbcommon
+            pkgs.alsa-lib
           ];
         };
       });
